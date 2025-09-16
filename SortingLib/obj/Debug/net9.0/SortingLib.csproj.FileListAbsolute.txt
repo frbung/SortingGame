@@ -1,0 +1,12 @@
+c:\Dev\FrbUng\SortingGame\SortingLib\bin\Debug\net9.0\SortingLib.deps.json
+c:\Dev\FrbUng\SortingGame\SortingLib\bin\Debug\net9.0\SortingLib.dll
+c:\Dev\FrbUng\SortingGame\SortingLib\bin\Debug\net9.0\SortingLib.pdb
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.GeneratedMSBuildEditorConfig.editorconfig
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.AssemblyInfoInputs.cache
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.AssemblyInfo.cs
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.csproj.CoreCompileInputs.cache
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.sourcelink.json
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.dll
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\refint\SortingLib.dll
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\SortingLib.pdb
+c:\Dev\FrbUng\SortingGame\SortingLib\obj\Debug\net9.0\ref\SortingLib.dll
