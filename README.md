@@ -3,6 +3,12 @@
 A mixed _VSCode_ / _Unity_ project.
 Shows a couple of sorting algorithms and uses them in plain C# and _Unity_ projects.
 
+## Pre-requisites
+
+- Visual Studio Code
+- Unity: https://unity.com/releases/editor/archive, version 2020.3.48f1
+
+
 ## Steps
 
 ### Scafold projects
