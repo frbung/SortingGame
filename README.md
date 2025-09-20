@@ -6,10 +6,12 @@ Shows a couple of sorting algorithms and uses them in plain C# and _Unity_ proje
 ## Pre-requisites
 
 - Visual Studio Code
+    - C# Dev
 - Unity: https://unity.com/releases/editor/archive, version 2020.3.48f1
+    - ProBuilder package
 
 
-## Steps
+## Steps for CLI
 
 ### Scafold projects
 
@@ -34,3 +36,8 @@ dotnet add package CommandLineParser
 ### Run
 
 Create a dotnet project execution.
+
+## Steps for Unity
+
+- Use `mklink /D` or `New-Item -ItemType SymbolicLink` to create a link to `SortingLib` under `Assets/External`.
+- Delete `bin` and `obj`.

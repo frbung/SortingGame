@@ -1,8 +1,9 @@
-namespace SortingLib;
-
-public enum SortingAlgorithms
+namespace SortingLib
 {
-    BubbleSort,
+    public enum SortingAlgorithms
+    {
+        BubbleSort,
 
-    MergeSort
+        MergeSort
+    }
 }

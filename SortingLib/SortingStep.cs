@@ -1,28 +1,32 @@
-namespace SortingLib;
+using System.Linq;
 
-/// <summary>
-/// A single action performed by the algorithm.
-/// </summary>
-public sealed class SortingStep
+
+namespace SortingLib
 {
-    #region Properties
-    
-    public StepTypes StepType { get; init; }
-
-    public int Left { get; init; }
-
-    public int Right { get; init; }
-    
-    public int[] ListAfterTheStep { get; init; } = [];
-
-    #endregion
-
-
-    public SortingStep(StepTypes stepType, int left, int right, int[] listAfterTheStep)
+    /// <summary>
+    /// A single action performed by the algorithm.
+    /// </summary>
+    public sealed class SortingStep
     {
-        StepType = stepType;
-        Left = left;
-        Right = right;
-        ListAfterTheStep = listAfterTheStep.ToArray();
+        #region Properties
+
+        public StepTypes StepType { get; set; }
+
+        public int Left { get; set; }
+
+        public int Right { get; set; }
+
+        public int[] ListAfterTheStep { get; set; } = new int[0];
+
+        #endregion
+
+
+        public SortingStep(StepTypes stepType, int left, int right, int[] listAfterTheStep)
+        {
+            StepType = stepType;
+            Left = left;
+            Right = right;
+            ListAfterTheStep = listAfterTheStep.ToArray();
+        }
     }
 }
