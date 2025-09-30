@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace SortingLib
@@ -17,9 +18,12 @@ namespace SortingLib
             var rand = new Random();
             var list = new int[number];
 
-            for (var i = 0; i < number; i++)
+            for (var i = 0; i < number; )
             {
-                list[i] = rand.Next(minimum, maximum + 1);
+                var cand = rand.Next(minimum, maximum + 1);
+                if (list.Take(i).Contains(cand)) continue;
+                list[i] = cand;
+                i++;
             }
 
             return list;

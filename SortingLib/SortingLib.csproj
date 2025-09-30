@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <OutputPath>C:\Temp\SortingLib\bin</OutputPth>
+    <IntermediateOutputPath>C:\Temp\SortingLib\obj\</IntermediateOutputPath>
   </PropertyGroup>
 
 </Project>
