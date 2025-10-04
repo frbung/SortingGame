@@ -13,7 +13,7 @@ namespace SortingLib
         /// <param name="number">The number of integers.</param>
         /// <param name="minimum">Lowest value (including).</param>
         /// <param name="maximum">Highest value (including).</param>
-        public static int[] GenerateList(int number, int minimum = 1, int maximum = 100)
+        public static int[] GenerateList(int number, int minimum = 1, int maximum = 99)
         {
             var rand = new Random();
             var list = new int[number];

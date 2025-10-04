@@ -27,6 +27,12 @@ public class Spawner : MonoBehaviour
     /// </summary>
     public GameObjectArrayEvent OnObjectsReady;
 
+
+    /// <summary>
+    /// Force multiplier applied to the objects when they need to vertically align.
+    /// </summary>
+    public float AlignForce = 0.02f;
+
     #endregion
 
 
@@ -89,6 +95,7 @@ public class Spawner : MonoBehaviour
             obj.name = $"Cube {number}";
             var objScript = obj.GetComponent<NumberObjectScript>();
             objScript.Number = number;
+            objScript.AlignForce = AlignForce;
 
             Objects[i] = obj;
 

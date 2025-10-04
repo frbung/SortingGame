@@ -14,11 +14,16 @@ public enum ObjectStates
     VertAligning,
 
     /// <summary>
+    /// THe vertical alignment is done.
+    /// </summary>
+    VertAligned,
+
+    /// <summary>
     /// Jumping off other objects to the ground level.
     /// </summary>
     Flattening,
 
     Sorting,
 
-    Sorted
+    Sorted,
 }
