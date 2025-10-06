@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\Ground\Scripts\GroundScript.cs" />
     <Compile Include="Assets\External\SortingLib\MergeSort.cs" />
+    <Compile Include="Assets\Controls\CameraScript.cs" />
     <Compile Include="Assets\External\SortingLib\SortingStep.cs" />
     <Compile Include="Assets\External\SortingLib\BubbleSort.cs" />
     <Compile Include="Assets\External\SortingLib\GameUtil.cs" />
@@ -66,9 +67,8 @@
     <Compile Include="Assets\External\SortingLib\SortingAlgorithms.cs" />
     <Compile Include="Assets\Common\ObjectStates.cs" />
     <Compile Include="Assets\Common\GameObjectArrayEvent.cs" />
+    <Compile Include="Assets\Common\CenterOfMassModifier.cs" />
     <Compile Include="Assets\External\SortingLib\StepTypes.cs" />
-    <Compile Include="Assets\Controls\CameraScript.cs" />
-    <Compile Include="Assets\Number object\Scripts\CenterOfMassModifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

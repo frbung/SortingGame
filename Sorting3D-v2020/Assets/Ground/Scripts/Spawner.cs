@@ -31,7 +31,7 @@ public class Spawner : MonoBehaviour
     /// <summary>
     /// Force multiplier applied to the objects when they need to vertically align.
     /// </summary>
-    public float AlignForce = 0.02f;
+    public float AlignForce = 0.5f;
 
     #endregion
 

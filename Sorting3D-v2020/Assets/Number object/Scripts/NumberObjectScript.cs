@@ -100,7 +100,7 @@ public class NumberObjectScript : MonoBehaviour
     #endregion
 
 
-    #region Utility
+    #region Utility: life cycle and basics
 
     private IEnumerator LifeCycle()
     {
@@ -109,33 +109,9 @@ public class NumberObjectScript : MonoBehaviour
             yield return null;
 
         State = ObjectStates.VertAligning;
-        while (!IsVertical())
-        {
-            yield return OrientUp(AlignForce, AlignDuration);
-        }
+        yield return OrientVertically();
         FreezeRotation();
         State = ObjectStates.Flattening;
-    }
-
-
-    /// <summary>
-    /// Try get the object to stand up. If fails, repulse.
-    /// </summary>
-    private IEnumerator OrientUp(float forceMultiplier, float duration)
-    {
-        var elapsed = 0f;
-
-        while (!IsVertical() && elapsed < duration)
-        {
-            OrientUpStep(forceMultiplier);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        if (!IsVertical())
-        {
-            ApplyRepulsion();
-        }
     }
 
 
@@ -159,10 +135,116 @@ public class NumberObjectScript : MonoBehaviour
     }
 
 
+    private void FreezeRotation()
+    {
+         GetComponent<Rigidbody>().freezeRotation = true;
+    }
+
+    #endregion
+
+
+    #region Utility: vertical orientation FSM
+
+    private IEnumerator OrientVertically()
+    {
+        var step = 1;
+        while (!IsVertical())
+        {
+            switch (step)
+            {
+                case 1:
+                case 3:
+                    yield return TryOrientUp(AlignForce, AlignDuration);
+                    step++;
+                    break;
+                case 2:
+                    yield return PushOthers();
+                    step++;
+                    break;
+                case 4:
+                    yield return PushMe();
+                    step = 1;
+                    break;
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Try get the object to stand up by turning for some time.
+    /// </summary>
+    private IEnumerator TryOrientUp(float forceMultiplier, float duration)
+    {
+        var elapsed = 0f;
+
+        while (!IsVertical() && elapsed < duration)
+        {
+            OrientUpStep(forceMultiplier);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+
+    /// <summary>
+    /// We are stuck, push surrounding objects outwards.
+    /// </summary>
+    private IEnumerator PushOthers()
+    {
+        var neighbours = Physics.OverlapSphere(transform.position, RepulsionRadius);
+        var numbers = neighbours
+            .Where(n => n.attachedRigidbody != null)
+            .Select(n => new {
+                obj = n.attachedRigidbody.gameObject,
+                scr = n.attachedRigidbody.gameObject.GetComponent<NumberObjectScript>()
+            })
+            .Where(o => o.scr != null && o.scr != this)
+            .Select(o => o.obj)
+            .ToArray();
+
+        if (numbers.Length > 0)
+        {
+            Animator animator = GetComponent<Animator>();
+            animator.SetTrigger("PushOthers");
+
+            foreach (var neighbour in numbers)
+            {
+                var diff = neighbour.transform.position - transform.position;
+                var direction = new Vector3(diff.x, 0f, diff.z).normalized;
+                neighbour.GetComponent<Rigidbody>().AddForce(direction * RepulsionForce, ForceMode.Impulse);
+            }
+
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+
+    /// <summary>
+    /// We are still stuck, push myself away from the walls or from the centre.
+    /// </summary>
+    private IEnumerator PushMe()
+    {
+        var neighbours = Physics.OverlapSphere(transform.position, RepulsionRadius);
+        var walls = neighbours
+            .Where(n => n.attachedRigidbody == null)
+            .Where(n => n.name.StartsWith("Wall"))
+            .ToArray();
+
+        if (walls.Length == 0)
+        {
+            // Push from centre
+            var direction = transform.position.normalized;
+            GetComponent<Rigidbody>().AddForce(direction * RepulsionForce, ForceMode.Impulse);
+        }
+
+        yield return new WaitForSeconds(0.5f);
+    }
+
+
     private void OrientUpStep(float forceMultiplier)
     {
         // We're still moving
-        if (IsStationary()) return;
+        if (!IsStationary()) return;
 
         var rb = GetComponent<Rigidbody>();
         var angleToUp = Vector3.Angle(Vector3.up, rb.transform.up);
@@ -182,34 +264,6 @@ public class NumberObjectScript : MonoBehaviour
 
         // Take by the upper side and push
         rb.AddForceAtPosition(force, rb.transform.position + Vector3.up * 2, ForceMode.Impulse);
-    }
-
-
-    private void FreezeRotation()
-    {
-         GetComponent<Rigidbody>().freezeRotation = true;
-    }
-
-
-    /// <summary>
-    /// We are stuck, do somthing.
-    /// </summary>
-    private void ApplyRepulsion()
-    {
-        var neighbours = Physics.OverlapSphere(transform.position, RepulsionRadius);
-        var numbers = neighbours
-            .Select(n => n.transform.root.gameObject.GetComponent<NumberObjectScript>())
-            .Where(s => s != null && s.gameObject != gameObject)
-            .ToArray();
-
-        foreach (var neighbour in neighbours)
-        {
-            if (neighbour.attachedRigidbody != null && neighbour.gameObject != gameObject)
-            {
-                var direction = (neighbour.transform.position - transform.position).normalized;
-                neighbour.attachedRigidbody.AddForce(direction * RepulsionForce, ForceMode.Impulse);
-            }
-        }
     }
 
 
