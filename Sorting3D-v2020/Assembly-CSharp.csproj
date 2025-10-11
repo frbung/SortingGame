@@ -69,6 +69,7 @@
     <Compile Include="Assets\Common\GameObjectArrayEvent.cs" />
     <Compile Include="Assets\Common\CenterOfMassModifier.cs" />
     <Compile Include="Assets\External\SortingLib\StepTypes.cs" />
+    <Compile Include="Assets\Number object\Scripts\AlwaysUpScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

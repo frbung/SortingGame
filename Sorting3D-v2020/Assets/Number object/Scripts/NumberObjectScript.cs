@@ -204,14 +204,21 @@ public class NumberObjectScript : MonoBehaviour
 
         if (numbers.Length > 0)
         {
-            Animator animator = GetComponent<Animator>();
-            animator.SetTrigger("PushOthers");
+            GetComponent<Animator>().SetTrigger("PushOthers");
 
             foreach (var neighbour in numbers)
             {
                 var diff = neighbour.transform.position - transform.position;
                 var direction = new Vector3(diff.x, 0f, diff.z).normalized;
                 neighbour.GetComponent<Rigidbody>().AddForce(direction * RepulsionForce, ForceMode.Impulse);
+            }
+
+            var ps = GetComponentInChildren<ParticleSystem>();
+            if (ps != null)
+            {
+                //ps.transform.parent = null;
+                //ps.transform.rotation = Quaternion.identity;
+                ps.Play();
             }
 
             yield return new WaitForSeconds(0.5f);
