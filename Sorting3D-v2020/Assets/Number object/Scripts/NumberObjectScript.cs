@@ -1,7 +1,8 @@
-using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
+using TMPro;
 
 
 public class NumberObjectScript : MonoBehaviour
@@ -13,6 +14,16 @@ public class NumberObjectScript : MonoBehaviour
     private const float SettledAngle = 1f;
 
     private const float TouchDistance = 1f;
+
+    private const float PushDuration = 0.5f;
+
+    private const float DestinationReachedDistance = 0.1f;
+
+    private const string IdleTrigger = "Idle";
+
+    private const string PushOthersTrigger = "PushOthers";
+
+    private const string WalkTrigger = "Walk";
 
     #endregion
 
@@ -67,6 +78,12 @@ public class NumberObjectScript : MonoBehaviour
 
     public ObjectStates State { get; private set; }
 
+
+    /// <summary>
+    /// Where should the object "go to".
+    /// </summary>
+    public Vector3 TargetPosition { get; set; }
+
     #endregion
 
 
@@ -77,7 +94,7 @@ public class NumberObjectScript : MonoBehaviour
         // Assign text material
         foreach (Transform child in transform)
         {
-            if (child.TryGetComponent<TMPro.TextMeshPro>(out var text))
+            if (child.TryGetComponent<TextMeshPro>(out var text))
             {
                 if (TextMaterial != null)
                 {
@@ -89,12 +106,29 @@ public class NumberObjectScript : MonoBehaviour
         }
 
         // STart the state machine
-        StartCoroutine(LifeCycle());
+        StartCoroutine(SetMeUp());
     }
 
 
     void Update()
     {
+        if (State == ObjectStates.LinedUp && Vector3.Distance(transform.position, TargetPosition) < DestinationReachedDistance)
+        {
+            GetComponent<Animator>().SetTrigger(IdleTrigger);
+            State = ObjectStates.WaitingForSorting;
+        }
+
+        if (State == ObjectStates.WaitingForSorting&& Vector3.Distance(transform.position, TargetPosition) > DestinationReachedDistance)
+        {
+            GetComponent<Animator>().SetTrigger(WalkTrigger);
+            GetComponent<NavMeshAgent>().SetDestination(TargetPosition);
+        }
+    }
+
+
+    public void OnClicked()
+    {
+        StartCoroutine(PushOthers());
     }
 
     #endregion
@@ -102,16 +136,19 @@ public class NumberObjectScript : MonoBehaviour
 
     #region Utility: life cycle and basics
 
-    private IEnumerator LifeCycle()
+    private IEnumerator SetMeUp()
     {
         State = ObjectStates.Falling;
-        while (!IsStationary())
-            yield return null;
+        yield return new WaitUntil(() => IsStationary());
 
         State = ObjectStates.VertAligning;
         yield return OrientVertically();
         FreezeRotation();
-        State = ObjectStates.Flattening;
+
+        State = ObjectStates.LiningUp;
+        yield return GoToTarget();
+
+        State = ObjectStates.LinedUp;
     }
 
 
@@ -191,6 +228,12 @@ public class NumberObjectScript : MonoBehaviour
     /// </summary>
     private IEnumerator PushOthers()
     {
+        var ps = GetComponentInChildren<ParticleSystem>();
+        if (ps != null)
+        {
+            ps.Play();
+        }
+
         var neighbours = Physics.OverlapSphere(transform.position, RepulsionRadius);
         var numbers = neighbours
             .Where(n => n.attachedRigidbody != null)
@@ -204,7 +247,7 @@ public class NumberObjectScript : MonoBehaviour
 
         if (numbers.Length > 0)
         {
-            GetComponent<Animator>().SetTrigger("PushOthers");
+            GetComponent<Animator>().SetTrigger(PushOthersTrigger);
 
             foreach (var neighbour in numbers)
             {
@@ -213,15 +256,7 @@ public class NumberObjectScript : MonoBehaviour
                 neighbour.GetComponent<Rigidbody>().AddForce(direction * RepulsionForce, ForceMode.Impulse);
             }
 
-            var ps = GetComponentInChildren<ParticleSystem>();
-            if (ps != null)
-            {
-                //ps.transform.parent = null;
-                //ps.transform.rotation = Quaternion.identity;
-                ps.Play();
-            }
-
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(PushDuration);
         }
     }
 
@@ -244,7 +279,7 @@ public class NumberObjectScript : MonoBehaviour
             GetComponent<Rigidbody>().AddForce(direction * RepulsionForce, ForceMode.Impulse);
         }
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(PushDuration);
     }
 
 
@@ -273,16 +308,33 @@ public class NumberObjectScript : MonoBehaviour
         rb.AddForceAtPosition(force, rb.transform.position + Vector3.up * 2, ForceMode.Impulse);
     }
 
+    #endregion
 
-    private bool IsNumberObjectThere(Vector3 direction)
+
+    #region Moving around
+
+    private IEnumerator GoToTarget()
     {
-        if (Physics.Raycast(transform.position, direction, out var hit, TouchDistance))
+        // Check navigation agent
+        var nav = GetComponent<NavMeshAgent>();        
+        nav.enabled = true;
+        
+        if (NavMesh.SamplePosition(nav.transform.position, out var hit, 15f, NavMesh.AllAreas))
         {
-            Debug.Log("Object detected: " + hit.collider.name);
-            return true;
+            if (hit.distance > 1f)
+            {
+                nav.transform.position = hit.position;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Object {name} is not on NavMesh, cannot navigate.");
+            yield break;
         }
 
-        return false;
+        nav.SetDestination(TargetPosition);
+        GetComponent<Animator>().SetTrigger(WalkTrigger);
+        yield return null;
     }
 
     #endregion

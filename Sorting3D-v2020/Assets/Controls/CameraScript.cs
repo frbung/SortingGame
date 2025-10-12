@@ -10,7 +10,7 @@ public class CameraScript : MonoBehaviour
 
     public float MaxHeight = 50f;
 
-    public float ZoomSpeed = 100f;
+    public float ZoomSpeed = 1000f;
     
     public float RotationSpeed = 5f;
     

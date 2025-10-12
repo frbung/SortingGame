@@ -21,9 +21,17 @@ public enum ObjectStates
     /// <summary>
     /// Jumping off other objects to the ground level.
     /// </summary>
-    Flattening,
+    LiningUp,
 
-    Sorting,
+    /// <summary>
+    /// Reached the destination.
+    /// </summary>
+    LinedUp,
 
+    /// <summary>
+    /// Stay at the destination until next command.
+    /// </summary>
+    WaitingForSorting,
+    
     Sorted,
 }

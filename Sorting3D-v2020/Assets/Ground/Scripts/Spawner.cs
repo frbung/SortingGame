@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Linq;
 using SortingLib;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public class Spawner : MonoBehaviour
@@ -13,6 +15,19 @@ public class Spawner : MonoBehaviour
     /// Assign this in the Inspector.
     /// </summary>
     public GameObject Prefab;
+
+
+    /// <summary>
+    /// Where should the objects go to.
+    /// Align them there in a row along local X axis.
+    /// </summary>
+    public GameObject Target;
+
+
+    /// <summary>
+    /// Relative size of the space between the objects when placed on the target object.
+    /// </summary>
+    public float Margin = 0.8f;
 
 
     /// <summary>
@@ -70,12 +85,6 @@ public class Spawner : MonoBehaviour
         StartCoroutine(SpawnObjects());
     }
 
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     #endregion
 
 
@@ -84,6 +93,14 @@ public class Spawner : MonoBehaviour
     IEnumerator SpawnObjects()
     {
         Objects = new GameObject[Numbers.Length];
+        var boundsList = Prefab.GetComponentsInChildren<Renderer>(true).
+            Select(r => r is SkinnedMeshRenderer sr ? sr.sharedMesh.bounds : r.bounds);
+        var bounds = boundsList.Aggregate(new Bounds(), (a, r) => { a.Encapsulate(r); return a; }, a => a.size);
+        var margin = bounds.x * Margin;
+        var length = Numbers.Length * bounds.x + (Numbers.Length - 1) * margin;
+        var leftOffset = -(length / 2);
+        var targetCenterPos = Target.transform.position;
+        var dest0PosAtTarget = new Vector3(targetCenterPos.x + leftOffset, targetCenterPos.y, targetCenterPos.z);
 
         for (var i = 0; i < Numbers.Length; i++)
         {
@@ -92,13 +109,26 @@ public class Spawner : MonoBehaviour
             var spawnRotation = Quaternion.Euler(0, number, number);
             var obj = Instantiate(Prefab, spawnPosition, spawnRotation);
 
+            // Object properties
             obj.name = $"Cube {number}";
             var objScript = obj.GetComponent<NumberObjectScript>();
             objScript.Number = number;
             objScript.AlignForce = AlignForce;
 
+            // Navigation properties
+            var nav = obj.GetComponent<NavMeshAgent>();
+            nav.avoidancePriority = Random.Range(30, 70);
+            nav.speed = Random.Range(6, 8);
+
+            // Object target
+            var destPosAtTarget = new Vector3(dest0PosAtTarget.x + i * (bounds.x + margin), dest0PosAtTarget.y, dest0PosAtTarget.z);
+            var destPosWorld = Target.transform.TransformPoint(destPosAtTarget);
+            var destPosAtGround = transform.InverseTransformPoint(destPosWorld);
+            objScript.TargetPosition = destPosAtGround;
+
             Objects[i] = obj;
 
+            leftOffset += length + margin;
             yield return new WaitForSeconds(SpawnInterval);
         }
 
